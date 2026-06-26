@@ -8,7 +8,6 @@ public class Main {
         databaseWifi.add(new PenggunaWiFi("E5:F6:G7:H8", "Budi Jatmiko", "45 MB", "Limit", "14:00"));
         databaseWifi.add(new PenggunaWiFi("BC:D1:12:F5", "Siti Aminah", "0 MB", "DIBLOKIR", "14:00"));
 
-        // Cara mengakses datanya:
         for (PenggunaWiFi p : databaseWifi) {
             System.out.println("Nama: " + p.nama + " | Status: " + p.status);
         }

@@ -13,9 +13,10 @@ public class GUI extends JFrame {
     private JPanel mainContainer;
     private DefaultTableModel model; 
     private JTable table;
-    private final String HALAMAN_UTAMA = "Manajemen Pengguna";
+    private final String HALAMAN_UTAMA = "Monitoring Penggunaan WiFi Publik";
     private final String HALAMAN_TAMBAH = "Tambah Pengguna";
     private final String HALAMAN_GRAFIK = "Grafik";
+    private final String HALAMAN_ANALISIS = "Analisis";
 
     public GUI() {
         System.out.print(DBWifi.databaseWifi.get(1));
@@ -31,6 +32,7 @@ public class GUI extends JFrame {
         mainContainer.add(createManajemenPanel(), HALAMAN_UTAMA);
         mainContainer.add(createTambahPanel(), HALAMAN_TAMBAH);
         mainContainer.add(showGrafikPanel(), HALAMAN_GRAFIK);
+        mainContainer.add(showAnalisisPanel(), HALAMAN_ANALISIS);
         
         cardLayout.show(mainContainer, HALAMAN_UTAMA);
 
@@ -70,9 +72,9 @@ public class GUI extends JFrame {
         JPanel panel = new JPanel(null);
         panel.setBackground(Color.WHITE);
 
-        JLabel labelTitle = new JLabel("Manajemen Pengguna");
+        JLabel labelTitle = new JLabel("Monitoring Penggunaan WiFi Publik");
         labelTitle.setFont(new Font("Arial", Font.BOLD, 18));
-        labelTitle.setBounds(20, 0, 250, 25);
+        labelTitle.setBounds(20, 0, 500, 25);
         panel.add(labelTitle);
 
         JButton btnTambahAtas = new JButton("+ Tambah Pengguna");
@@ -128,6 +130,7 @@ public class GUI extends JFrame {
         JButton btnAnalisis = new JButton("Analisis Jam Sibuk");
         btnAnalisis.setBounds(20, 325, 160, 25);
         btnAnalisis.setBackground(Color.WHITE);
+        btnAnalisis.addActionListener(e -> cardLayout.show(mainContainer, HALAMAN_ANALISIS));
         panel.add(btnAnalisis);
 
         JTextField txtBuatCari = new JTextField("Cari nama pengguna...");
@@ -175,14 +178,14 @@ public class GUI extends JFrame {
                 java.util.List<ArrayList<String>> data = DBWifi.databaseWifi;
                 if (data == null || data.isEmpty()) {
                     g2.setFont(new Font("Arial", Font.PLAIN, 14));
-                    g2.drawString("Tidak ada data untuk ditampilkan", 20, 30);
+                    g2.drawString("Tidak ada data untuk ditampilkan", 20, 20);
                     return;
                 }
 
                 int w = getWidth();
                 int h = getHeight();
                 int marginLeft = 60;
-                int marginRight = 20;
+                int marginRight = 150;
                 int marginTop = 20;
                 int marginBottom = 60;
 
@@ -230,19 +233,35 @@ public class GUI extends JFrame {
                         ys[i] = marginTop + (int) ((1 - normalized) * chartH);
                     }
 
-                    // Draw lines
+                    // Draw area line chart
                     g2.setColor(new Color(30, 144, 255));
                     g2.setStroke(new BasicStroke(2f));
-                    for (int i = 0; i < n - 1; i++) {
-                        g2.drawLine(xs[i], ys[i], xs[i + 1], ys[i + 1]);
+
+                    java.awt.geom.Path2D.Double areaPath = new java.awt.geom.Path2D.Double();
+                    areaPath.moveTo(xs[0], marginTop + chartH);
+                    areaPath.lineTo(xs[0], ys[0]);
+                    for (int i = 1; i < n; i++) {
+                        areaPath.lineTo(xs[i], ys[i]);
                     }
+                    areaPath.lineTo(xs[n - 1], marginTop + chartH);
+                    areaPath.closePath();
+
+                    g2.setColor(new Color(30, 144, 255, 60));
+                    g2.fill(areaPath);
+
+                    java.awt.geom.Path2D.Double linePath = new java.awt.geom.Path2D.Double();
+                    linePath.moveTo(xs[0], ys[0]);
+                    for (int i = 1; i < n; i++) {
+                        linePath.lineTo(xs[i], ys[i]);
+                    }
+                    g2.setColor(new Color(30, 144, 255));
+                    g2.draw(linePath);
 
                     // Draw points and labels
                     g2.setColor(new Color(255, 69, 0));
                     for (int i = 0; i < n; i++) {
                         g2.fillOval(xs[i] - 4, ys[i] - 4, 8, 8);
                         String name = data.get(i).get(1);
-                        // short label
                         String label = name.length() > 10 ? name.substring(0, 10) + ".." : name;
                         g2.setColor(Color.BLACK);
                         g2.drawString(label, xs[i] - 15, marginTop + chartH + 20);
@@ -288,6 +307,158 @@ public class GUI extends JFrame {
         footer.add(btnKembali);
         panel.add(footer, BorderLayout.SOUTH);
 
+        return panel;
+    }
+
+    private JPanel showAnalisisPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+
+        JLabel title = new JLabel("Analisis Jam Sibuk", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 18));
+        title.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        panel.add(title, BorderLayout.NORTH);
+
+        class AnalysisChartPanel extends JPanel {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+                java.util.List<ArrayList<String>> data = DBWifi.databaseWifi;
+                int width = getWidth();
+                int height = getHeight();
+                int marginLeft = 60;
+                int marginRight = 20;
+                int marginTop = 20;
+                int marginBottom = 60;
+                int chartW = width - marginLeft - marginRight;
+                int chartH = height - marginTop - marginBottom;
+
+                if (chartW <= 0 || chartH <= 0) {
+                    return;
+                }
+
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, width, height);
+                g2.setColor(Color.BLACK);
+                g2.drawLine(marginLeft, marginTop, marginLeft, marginTop + chartH);
+                g2.drawLine(marginLeft, marginTop + chartH, marginLeft + chartW, marginTop + chartH);
+
+                int[] countByHour = new int[24];
+                int maxHour = 0;
+                
+                // Gunakan histori jam akses yang telah terekam
+                for (int hour = 0; hour < 24; hour++) {
+                    countByHour[hour] = DBWifi.jamSibukHistory[hour];
+                    if (countByHour[hour] > 0 && hour > maxHour) {
+                        maxHour = hour;
+                    }
+                }
+                
+                // Tambahkan user saat ini per jam dari database
+                for (ArrayList<String> row : data) {
+                    if (row.size() > 4) {
+                        try {
+                            int hour = Integer.parseInt(row.get(4).split(":")[0]);
+                            if (hour >= 0 && hour < 24) {
+                                countByHour[hour]++;
+                                if (hour > maxHour) {
+                                    maxHour = hour;
+                                }
+                            }
+                        } catch (Exception ex) {
+                            // skip invalid time values
+                        }
+                    }
+                }
+
+                int maxCount = 1;
+                for (int c : countByHour) {
+                    if (c > maxCount) {
+                        maxCount = c;
+                    }
+                }
+
+                g2.setFont(new Font("Arial", Font.PLAIN, 10));
+                for (int i = 0; i <= 5; i++) {
+                    int y = marginTop + (chartH * i) / 5;
+                    int value = (int) Math.round(maxCount * (5 - i) / 5.0);
+                    g2.setColor(Color.LIGHT_GRAY);
+                    g2.drawLine(marginLeft, y, marginLeft + chartW, y);
+                    g2.setColor(Color.BLACK);
+                    g2.drawString(value + " user", 5, y + 4);
+                }
+
+                for (int hour = 0; hour < 24; hour += 3) {
+                    int x = marginLeft + (int) ((chartW * hour) / 23.0);
+                    g2.setColor(Color.BLACK);
+                    g2.drawLine(x, marginTop + chartH, x, marginTop + chartH + 5);
+                    g2.drawString(String.format("%02d:00", hour), x - 15, marginTop + chartH + 20);
+                }
+
+                int[] xs = new int[24];
+                int[] ys = new int[24];
+                for (int hour = 0; hour < 24; hour++) {
+                    xs[hour] = marginLeft + (int) ((chartW * hour) / 23.0);
+                    double normalized = maxCount == 0 ? 0 : countByHour[hour] / (double) maxCount;
+                    ys[hour] = marginTop + chartH - (int) (normalized * chartH);
+                }
+
+                java.awt.geom.Path2D.Double line = new java.awt.geom.Path2D.Double();
+                line.moveTo(xs[0], ys[0]);
+                for (int hour = 1; hour < 24; hour++) {
+                    int cx = (xs[hour - 1] + xs[hour]) / 2;
+                    int cy = (ys[hour - 1] + ys[hour]) / 2;
+                    line.quadTo(xs[hour - 1], ys[hour - 1], cx, cy);
+                }
+                line.quadTo(xs[22], ys[22], xs[23], ys[23]);
+
+                java.awt.geom.Path2D.Double area = new java.awt.geom.Path2D.Double(line);
+                area.lineTo(xs[23], marginTop + chartH);
+                area.lineTo(xs[0], marginTop + chartH);
+                area.closePath();
+
+                g2.setColor(new Color(30, 144, 255, 60));
+                g2.fill(area);
+                g2.setColor(new Color(30, 144, 255));
+                g2.setStroke(new BasicStroke(2f));
+                g2.draw(line);
+
+                for (int hour = 0; hour < 24; hour++) {
+                    if (countByHour[hour] > 0) {
+                        if (hour == maxHour) {
+                            g2.setColor(new Color(220, 20, 60));
+                        } else {
+                            g2.setColor(new Color(255, 140, 0));
+                        }
+                        g2.fillOval(xs[hour] - 4, ys[hour] - 4, 8, 8);
+                        g2.setColor(Color.BLACK);
+                        g2.drawString(String.valueOf(countByHour[hour]), xs[hour] - 6, ys[hour] - 10);
+                    }
+                }
+
+                g2.setColor(Color.DARK_GRAY);
+                g2.drawString("Jam terbaru: " + String.format("%02d:00", maxHour), marginLeft, marginTop - 5);
+                g2.drawString("Total pengguna: " + data.size(), marginLeft + 160, marginTop - 5);
+            }
+        }
+
+        AnalysisChartPanel chart = new AnalysisChartPanel();
+        panel.add(chart, BorderLayout.CENTER);
+
+        JPanel bottom = new JPanel(new BorderLayout());
+        bottom.setBackground(Color.WHITE);
+
+        JButton btnKembali = new JButton("Kembali");
+        btnKembali.addActionListener(e -> cardLayout.show(mainContainer, HALAMAN_UTAMA));
+        JPanel footer = new JPanel();
+        footer.setBackground(Color.WHITE);
+        footer.add(btnKembali);
+        bottom.add(footer, BorderLayout.SOUTH);
+
+        panel.add(bottom, BorderLayout.SOUTH);
         return panel;
     }
 

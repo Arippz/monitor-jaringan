@@ -43,13 +43,20 @@ public class Main {
                         String[] timeParts = this.row.get(lastIndex).split(":");
                         int hours = Integer.parseInt(timeParts[0]);
                         int minutes = Integer.parseInt(timeParts[1]);
+                        int oldHours = hours;
 
                         // Time advances randomly between 1 and 4 minutes when they are active
-                        minutes += random.nextInt(4) + 1; 
+                        minutes += random.nextInt(60) + 1; 
                         if (minutes >= 60) {
                             hours += minutes / 60;
                             minutes = minutes % 60;
                         }
+                        
+                        // Record to history if hour changed
+                        if (hours != oldHours && hours < 24) {
+                            DBWifi.recordAccessTime(hours);
+                        }
+                        
                         row.set(lastIndex, String.format("%02d:%02d", hours, minutes));
                         
                         // Alert the terminal of an active data event

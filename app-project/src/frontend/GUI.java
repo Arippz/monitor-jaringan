@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
-
-import java.util.ArrayList;
 import java.awt.*;
 
 public class GUI extends JFrame {
@@ -30,10 +28,6 @@ public class GUI extends JFrame {
         mainContainer = new JPanel(cardLayout);
 
         mainContainer.add(createManajemenPanel(), HALAMAN_UTAMA);
-        mainContainer.add(createTambahPanel(), HALAMAN_TAMBAH); // <--- Ditambahkan disini
-        
-        // Populate table dengan data awal
-        refreshTable();
         
         cardLayout.show(mainContainer, HALAMAN_UTAMA);
 
@@ -107,8 +101,6 @@ public class GUI extends JFrame {
         this.model = new DefaultTableModel(data, columnNames);
         this.table = new JTable(model);
         
-        dataTable.setShowGrid(false);
-        dataTable.setIntercellSpacing(new Dimension(0, 5)); 
         
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBounds(20, 80, 580, 100);

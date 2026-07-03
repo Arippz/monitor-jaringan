@@ -29,11 +29,12 @@ public class GUI extends JFrame {
         mainContainer = new JPanel(cardLayout);
 
         mainContainer.add(createManajemenPanel(), HALAMAN_UTAMA);
+        mainContainer.add(createTambahPanel(), HALAMAN_TAMBAH); // <--- Ditambahkan disini
+        
         cardLayout.show(mainContainer, HALAMAN_UTAMA);
 
         add(mainContainer);
     }
-
 
     private JPanel createManajemenPanel() {
         JPanel panel = new JPanel(null);
@@ -52,7 +53,6 @@ public class GUI extends JFrame {
         btnTambahAtas.addActionListener(e -> cardLayout.show(mainContainer, HALAMAN_TAMBAH));
         panel.add(btnTambahAtas);
 
-
         JLabel labelAkses = new JLabel("Atur Akses Jaringan (Challenge)");
         labelAkses.setBounds(20, 100, 180, 25);
         panel.add(labelAkses);
@@ -66,11 +66,6 @@ public class GUI extends JFrame {
         buttonUpdateStatus.setBounds(345, 100, 150, 25);
         buttonUpdateStatus.setBackground(Color.WHITE);
         panel.add(buttonUpdateStatus);
-
-        JTextField txtBuatCari = new JTextField("Cari nama pengguna...");
-        txtBuatCari.setForeground(Color.GRAY);
-        txtBuatCari.setBounds(20, 135, 150, 25);
-        panel.add(txtBuatCari);
 
         JButton buttonCari = new JButton("Cari");
         buttonCari.setBounds(175, 135, 60, 25);
@@ -96,7 +91,6 @@ public class GUI extends JFrame {
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         panel.add(scrollPane);
 
-
         JButton btnGrafik = new JButton("Tampilkan grafik");
         btnGrafik.setBounds(20, 315, 130, 25);
         btnGrafik.setBackground(Color.WHITE);
@@ -107,8 +101,166 @@ public class GUI extends JFrame {
         btnAnalisis.setBackground(Color.WHITE);
         panel.add(btnAnalisis);
 
+        JTextField txtBuatCari = new JTextField("Cari nama pengguna...");
+        txtBuatCari.setForeground(Color.GRAY);
+        txtBuatCari.setBounds(20, 135, 150, 25);
+
+        txtBuatCari.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+        public void focusGained(java.awt.event.FocusEvent e) {
+        if (txtBuatCari.getText().equals("Cari nama pengguna...")) {
+            txtBuatCari.setText("");
+            txtBuatCari.setForeground(Color.BLACK); 
+        }
+    }
+
+    @Override
+    public void focusLost(java.awt.event.FocusEvent e) {
+        if (txtBuatCari.getText().isEmpty()) {
+            txtBuatCari.setText("Cari nama pengguna...");
+            txtBuatCari.setForeground(Color.GRAY);
+            }
+        }
+    });
+    panel.add(txtBuatCari);
+
         return panel; 
     }
+
+
+   private JPanel createTambahPanel() {
+    JPanel panel = new JPanel(null);
+    panel.setBackground(Color.WHITE);
+
+    JLabel labelTitle = new JLabel("Tambah Pengguna");
+    labelTitle.setFont(new Font("Arial", Font.BOLD, 18));
+    labelTitle.setBounds(40, 40, 250, 25);
+    panel.add(labelTitle);
+
+
+    JLabel labelMac = new JLabel("ID / MAC Address");
+    labelMac.setFont(new Font("Arial", Font.PLAIN, 13));
+    labelMac.setBounds(40, 90, 120, 25);
+    panel.add(labelMac);
+
+    JTextField txtMac = new JTextField("Contoh: 1A:2B:3C:4D");
+    txtMac.setForeground(Color.LIGHT_GRAY); // Warna teks placeholder
+    txtMac.setBounds(180, 90, 200, 25);
+    
+    txtMac.addFocusListener(new java.awt.event.FocusAdapter() {
+        @Override
+        public void focusGained(java.awt.event.FocusEvent e) {
+            if (txtMac.getText().equals("Contoh: 1A:2B:3C:4D")) {
+                txtMac.setText(""); 
+                txtMac.setForeground(Color.BLACK);
+            }
+        }
+        @Override
+        public void focusLost(java.awt.event.FocusEvent e) {
+            if (txtMac.getText().isEmpty()) {
+                txtMac.setText("Contoh: 1A:2B:3C:4D");
+                txtMac.setForeground(Color.LIGHT_GRAY);
+            }
+        }
+    });
+    panel.add(txtMac);
+
+    JLabel labelNama = new JLabel("Nama Pengguna");
+    labelNama.setFont(new Font("Arial", Font.PLAIN, 13));
+    labelNama.setBounds(40, 125, 120, 25);
+    panel.add(labelNama);
+
+    JTextField txtNama = new JTextField("Masukkan nama...");
+    txtNama.setForeground(Color.LIGHT_GRAY);
+    txtNama.setBounds(180, 125, 200, 25);
+    
+    txtNama.addFocusListener(new java.awt.event.FocusAdapter() {
+        @Override
+        public void focusGained(java.awt.event.FocusEvent e) {
+            if (txtNama.getText().equals("Masukkan nama...")) {
+                txtNama.setText("");
+                txtNama.setForeground(Color.BLACK);
+            }
+        }
+        @Override
+        public void focusLost(java.awt.event.FocusEvent e) {
+            if (txtNama.getText().isEmpty()) {
+                txtNama.setText("Masukkan nama...");
+                txtNama.setForeground(Color.LIGHT_GRAY);
+            }
+        }
+    });
+    panel.add(txtNama);
+
+    JLabel labelJam = new JLabel("Jam Akses (HH:00)");
+    labelJam.setFont(new Font("Arial", Font.PLAIN, 13));
+    labelJam.setBounds(40, 160, 120, 25);
+    panel.add(labelJam);
+
+    JTextField txtJam = new JTextField("Contoh: 14:00");
+    txtJam.setForeground(Color.LIGHT_GRAY);
+    txtJam.setBounds(180, 160, 200, 25);
+    
+    txtJam.addFocusListener(new java.awt.event.FocusAdapter() {
+        @Override
+        public void focusGained(java.awt.event.FocusEvent e) {
+            if (txtJam.getText().equals("Contoh: 14:00")) {
+                txtJam.setText("");
+                txtJam.setForeground(Color.BLACK);
+            }
+        }
+        @Override
+        public void focusLost(java.awt.event.FocusEvent e) {
+            if (txtJam.getText().isEmpty()) {
+                txtJam.setText("Contoh: 14:00");
+                txtJam.setForeground(Color.LIGHT_GRAY);
+            }
+        }
+    });
+    panel.add(txtJam);
+    JButton btnTambah = new JButton("+ Tambah");
+    btnTambah.setBounds(40, 205, 150, 30);
+    btnTambah.setBackground(Color.WHITE);
+    panel.add(btnTambah);
+
+    JButton btnBatal = new JButton("Batal");
+    btnBatal.setBounds(200, 205, 80, 30);
+    btnBatal.setBackground(Color.WHITE);
+    panel.add(btnBatal);
+
+
+btnTambah.addActionListener(e -> {
+    String mac = txtMac.getText().trim();
+    String nama = txtNama.getText().trim();
+    String jam = txtJam.getText().trim();
+
+    boolean isMacEmpty = mac.isEmpty() || mac.equals("Contoh: 1A:2B:3C:4D");
+    boolean isNamaEmpty = nama.isEmpty() || nama.equals("Masukkan nama...");
+    boolean isJamEmpty = jam.isEmpty() || jam.equals("Contoh: 14:00");
+
+    if (isMacEmpty || isNamaEmpty || isJamEmpty) {
+        JOptionPane.showMessageDialog(
+            this, 
+            "Semua data harus diisi! Tidak boleh ada kolom yang kosong.", 
+            "Peringatan", 
+            JOptionPane.WARNING_MESSAGE
+        );
+    } 
+    else {
+        JOptionPane.showMessageDialog(
+            this, 
+            "Data '" + nama + "' berhasil ditambahkan!", 
+            "Sukses", 
+            JOptionPane.INFORMATION_MESSAGE
+        );
+        cardLayout.show(mainContainer, HALAMAN_UTAMA);
+    }
+});
+
+    btnBatal.addActionListener(e -> cardLayout.show(mainContainer, HALAMAN_UTAMA));
+
+    return panel;
+}
 
     public static void main(String[] args) {
         try {

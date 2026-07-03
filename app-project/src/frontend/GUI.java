@@ -10,7 +10,6 @@ import backend.DBWifi;
 import java.awt.*;
 
 public class GUI extends JFrame {
-    system.out.println(DBWifi.databaseWifi); // Debugging statement
     private CardLayout cardLayout;
     private JPanel mainContainer;
 

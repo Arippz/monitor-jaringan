@@ -1,7 +1,13 @@
 package frontend;
+
 import backend.DBWifi;
+import backend.Main;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import backend.DBWifi; 
+
+
 import java.awt.*;
 
 public class GUI extends JFrame {
@@ -13,6 +19,9 @@ public class GUI extends JFrame {
     private final String HALAMAN_TAMBAH = "Tambah Pengguna";
 
     public GUI() {
+        Main.Perubahan();
+        System.out.print(DBWifi.databaseWifi.get(1));
+        System.out.print(DBWifi.databaseWifi.get(3));
         setTitle("Kelompok 1");
         setSize(650, 450); 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

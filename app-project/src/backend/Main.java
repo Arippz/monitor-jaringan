@@ -78,7 +78,6 @@ public class Main {
                 MyGui.addRecord(tableRecord);
             }
             if (allUsersEmpty) {
-                System.out.println("Semua pengguna telah kehabisan kuota. Menghentikan simulasi...");
                 break; 
             }
 

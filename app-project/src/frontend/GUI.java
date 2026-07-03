@@ -15,6 +15,7 @@ public class GUI extends JFrame {
     private JTable table;
     private final String HALAMAN_UTAMA = "Manajemen Pengguna";
     private final String HALAMAN_TAMBAH = "Tambah Pengguna";
+    private final String HALAMAN_GRAFIK = "Grafik";
 
     public GUI() {
         System.out.print(DBWifi.databaseWifi.get(1));
@@ -28,30 +29,39 @@ public class GUI extends JFrame {
         mainContainer = new JPanel(cardLayout);
 
         mainContainer.add(createManajemenPanel(), HALAMAN_UTAMA);
-        mainContainer.add(createTambahPanel(), HALAMAN_TAMBAH); // <--- Ditambahkan disini
+        mainContainer.add(createTambahPanel(), HALAMAN_TAMBAH);
+        mainContainer.add(showGrafikPanel(), HALAMAN_GRAFIK);
         
         cardLayout.show(mainContainer, HALAMAN_UTAMA);
 
         add(mainContainer);
+        refreshTable();
+    }
 
-        for (ArrayList<String> r : DBWifi.databaseWifi){
-            Object[] defaultRecord = {
+    public void clearTable() {
+        if (this.model != null) {
+            this.model.setRowCount(0);
+        }
+    }
+
+    public void addRecord(Object[] recordData){
+        if (this.model != null) {
+            this.model.addRow(recordData);
+        }
+    }
+
+    public void refreshTable() {
+        clearTable();
+        for (ArrayList<String> r : DBWifi.databaseWifi) {
+            Object[] recordData = {
                 r.get(0),
                 r.get(1),
                 r.get(2),
                 r.get(3),
                 r.get(4),
             };
-            this.addRecord(defaultRecord);
+            addRecord(recordData);
         }
-    }
-
-    public void clearTable() {
-        this.model.setRowCount(0);
-    }
-
-    public void addRecord(Object[] recordData){
-        this.model.addRow(recordData);
     }
 
 
@@ -112,6 +122,7 @@ public class GUI extends JFrame {
         JButton btnGrafik = new JButton("Tampilkan grafik");
         btnGrafik.setBounds(20, 295, 160, 25);
         btnGrafik.setBackground(Color.WHITE);
+        btnGrafik.addActionListener(e -> cardLayout.show(mainContainer, HALAMAN_GRAFIK));
         panel.add(btnGrafik);
 
         JButton btnAnalisis = new JButton("Analisis Jam Sibuk");
@@ -147,6 +158,137 @@ public class GUI extends JFrame {
 
     public static void updateStatus(){
         
+    }
+
+    private JPanel showGrafikPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+
+        // Inner chart panel that draws a simple line chart from DBWifi data
+        class ChartPanel extends JPanel {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+                java.util.List<ArrayList<String>> data = DBWifi.databaseWifi;
+                if (data == null || data.isEmpty()) {
+                    g2.setFont(new Font("Arial", Font.PLAIN, 14));
+                    g2.drawString("Tidak ada data untuk ditampilkan", 20, 30);
+                    return;
+                }
+
+                int w = getWidth();
+                int h = getHeight();
+                int marginLeft = 60;
+                int marginRight = 20;
+                int marginTop = 20;
+                int marginBottom = 60;
+
+                // Extract numeric quotas
+                int n = data.size();
+                int[] values = new int[n];
+                int maxVal = 1;
+                for (int i = 0; i < n; i++) {
+                    String quota = data.get(i).get(2);
+                    try {
+                        int v = Integer.parseInt(quota.replaceAll("[^0-9]", ""));
+                        values[i] = v;
+                        if (v > maxVal) maxVal = v;
+                    } catch (Exception ex) {
+                        values[i] = 0;
+                    }
+                }
+
+                int chartW = w - marginLeft - marginRight;
+                int chartH = h - marginTop - marginBottom;
+
+                // Draw axes
+                g2.setColor(Color.BLACK);
+                g2.drawLine(marginLeft, marginTop, marginLeft, marginTop + chartH); // Y axis
+                g2.drawLine(marginLeft, marginTop + chartH, marginLeft + chartW, marginTop + chartH); // X axis
+
+                // Y axis ticks and labels
+                int ticks = 5;
+                g2.setFont(new Font("Arial", Font.PLAIN, 10));
+                for (int t = 0; t <= ticks; t++) {
+                    int y = marginTop + (int) ((chartH * t) / (double) ticks);
+                    int value = (int) Math.round(maxVal * (1 - t / (double) ticks));
+                    g2.drawLine(marginLeft - 5, y, marginLeft, y);
+                    g2.drawString(value + " MB", 5, y + 4);
+                }
+
+                // X axis points
+                if (n > 1) {
+                    int gap = chartW / (n - 1);
+                    int[] xs = new int[n];
+                    int[] ys = new int[n];
+                    for (int i = 0; i < n; i++) {
+                        xs[i] = marginLeft + i * gap;
+                        double normalized = values[i] / (double) maxVal;
+                        ys[i] = marginTop + (int) ((1 - normalized) * chartH);
+                    }
+
+                    // Draw lines
+                    g2.setColor(new Color(30, 144, 255));
+                    g2.setStroke(new BasicStroke(2f));
+                    for (int i = 0; i < n - 1; i++) {
+                        g2.drawLine(xs[i], ys[i], xs[i + 1], ys[i + 1]);
+                    }
+
+                    // Draw points and labels
+                    g2.setColor(new Color(255, 69, 0));
+                    for (int i = 0; i < n; i++) {
+                        g2.fillOval(xs[i] - 4, ys[i] - 4, 8, 8);
+                        String name = data.get(i).get(1);
+                        // short label
+                        String label = name.length() > 10 ? name.substring(0, 10) + ".." : name;
+                        g2.setColor(Color.BLACK);
+                        g2.drawString(label, xs[i] - 15, marginTop + chartH + 20);
+                        g2.setColor(new Color(255, 69, 0));
+                    }
+                } else if (n == 1) {
+                    // Single point
+                    int x = marginLeft + chartW / 2;
+                    double normalized = values[0] / (double) maxVal;
+                    int y = marginTop + (int) ((1 - normalized) * chartH);
+                    g2.setColor(new Color(255, 69, 0));
+                    g2.fillOval(x - 4, y - 4, 8, 8);
+                }
+            }
+        }
+
+        ChartPanel chart = new ChartPanel();
+        panel.add(chart, BorderLayout.CENTER);
+
+        JPanel top = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        top.setBackground(Color.WHITE);
+        JButton btnRefresh = new JButton("Refresh");
+        btnRefresh.addActionListener(e -> {
+            btnRefresh.setEnabled(false);
+            Main backend = new Main();
+            new Thread(() -> {
+                // trigger backend update which modifies DBWifi and uses the GUI callbacks
+                backend.Perubahan(GUI.this);
+                // repaint chart on EDT and re-enable button
+                SwingUtilities.invokeLater(() -> {
+                    chart.repaint();
+                    btnRefresh.setEnabled(true);
+                });
+            }).start();
+        });
+        top.add(btnRefresh);
+        panel.add(top, BorderLayout.NORTH);
+
+        JButton btnKembali = new JButton("Kembali");
+        btnKembali.addActionListener(e -> cardLayout.show(mainContainer, HALAMAN_UTAMA));
+        JPanel footer = new JPanel();
+        footer.setBackground(Color.WHITE);
+        footer.add(btnKembali);
+        panel.add(footer, BorderLayout.SOUTH);
+
+        return panel;
     }
 
     private JPanel createTambahPanel() {
@@ -268,13 +410,23 @@ public class GUI extends JFrame {
             );
         } 
         else {
+            DBWifi.addUser(mac, nama, jam);
+            refreshTable();
+
             JOptionPane.showMessageDialog(
                 this, 
                 "Data '" + nama + "' berhasil ditambahkan!", 
                 "Sukses", 
                 JOptionPane.INFORMATION_MESSAGE
             );
-            DBWifi.addUser(mac, nama, jam);
+
+            txtMac.setText("Contoh: 1A:2B:3C:4D");
+            txtMac.setForeground(Color.LIGHT_GRAY);
+            txtNama.setText("Masukkan nama...");
+            txtNama.setForeground(Color.LIGHT_GRAY);
+            txtJam.setText("Contoh: 14:00");
+            txtJam.setForeground(Color.LIGHT_GRAY);
+
             cardLayout.show(mainContainer, HALAMAN_UTAMA);
         }
     });

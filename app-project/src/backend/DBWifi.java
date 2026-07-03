@@ -18,7 +18,7 @@ public class DBWifi {
         ArrayList<String> newUser = new ArrayList<>();
         newUser.add(macAddress);
         newUser.add(namaUser);
-        newUser.add("100 MB"); // Kuota default 100 MB
+        newUser.add("10 MB"); // Kuota default 100 MB
         newUser.add("Aktif"); // Status default Aktif
         newUser.add(jamAkses);
         databaseWifi.add(newUser);

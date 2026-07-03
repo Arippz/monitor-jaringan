@@ -2,7 +2,7 @@ package backend;
 import java.util.Random;
 import frontend.GUI;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 public class Main {
     public ArrayList<String> row = new ArrayList<String>();
     public static void main(String[] args){
@@ -82,5 +82,10 @@ public class Main {
             }
         }
     }   
+    public static void createData(String mac, String nama, String kuota, String status, String jam) {
+            ArrayList<String> dataBaru = new ArrayList<>(Arrays.asList(mac, nama, kuota, status, jam));
+            DBWifi.databaseWifi.add(dataBaru);
+            System.out.println("Berhasil menambahkan data: " + nama);
+    }
 }
 

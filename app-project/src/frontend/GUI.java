@@ -11,7 +11,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class GUI extends JFrame {
-
     private CardLayout cardLayout;
     private JPanel mainContainer;
     private DefaultTableModel model; 

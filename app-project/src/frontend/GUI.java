@@ -1,8 +1,9 @@
+package frontend;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
-public class wifimanager extends JFrame {
+public class GUI extends JFrame {
 
     private CardLayout cardLayout;
     private JPanel mainContainer;
@@ -10,7 +11,7 @@ public class wifimanager extends JFrame {
     private final String HALAMAN_UTAMA = "Manajemen Pengguna";
     private final String HALAMAN_TAMBAH = "Tambah Pengguna";
 
-    public wifimanager() {
+    public GUI() {
         setTitle("Kelompok 1");
         setSize(650, 450); 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -109,7 +110,7 @@ public class wifimanager extends JFrame {
         }
 
         SwingUtilities.invokeLater(() -> {
-            new wifimanager().setVisible(true);
+            new GUI().setVisible(true);
         });
     }
 }

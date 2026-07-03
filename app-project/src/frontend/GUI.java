@@ -1,6 +1,5 @@
 package frontend;
 
-import backend.DBWifi;
 import backend.Main;
 
 import javax.swing.*;

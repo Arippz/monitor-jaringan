@@ -12,4 +12,15 @@ public class DBWifi {
         databaseWifi.add(new ArrayList<>(Arrays.asList("BC:D1:12:F5", "Siti Aminah", "0 MB", "DIBLOKIR", "14:00")));
         databaseWifi.add(new ArrayList<>(Arrays.asList("D9:E0:F1:G2", "User Baru", "10 MB", "Aktif", "15:00")));
     }
+
+    // Metode untuk menambahkan pengguna baru
+    public static void addUser(String macAddress, String namaUser, String jamAkses) {
+        ArrayList<String> newUser = new ArrayList<>();
+        newUser.add(macAddress);
+        newUser.add(namaUser);
+        newUser.add("100 MB"); // Kuota default 100 MB
+        newUser.add("Aktif"); // Status default Aktif
+        newUser.add(jamAkses);
+        databaseWifi.add(newUser);
+    }
 }

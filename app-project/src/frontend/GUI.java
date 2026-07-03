@@ -6,12 +6,14 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import backend.DBWifi; 
 
-
+import java.util.ArrayList;
 import java.awt.*;
 
 public class GUI extends JFrame {
     private CardLayout cardLayout;
     private JPanel mainContainer;
+    private DefaultTableModel tableModel;
+    private JTable dataTable;
 
     private final String HALAMAN_UTAMA = "Manajemen Pengguna";
     private final String HALAMAN_TAMBAH = "Tambah Pengguna";
@@ -30,6 +32,9 @@ public class GUI extends JFrame {
 
         mainContainer.add(createManajemenPanel(), HALAMAN_UTAMA);
         mainContainer.add(createTambahPanel(), HALAMAN_TAMBAH); // <--- Ditambahkan disini
+        
+        // Populate table dengan data awal
+        refreshTable();
         
         cardLayout.show(mainContainer, HALAMAN_UTAMA);
 
@@ -79,13 +84,13 @@ public class GUI extends JFrame {
 
         String[] columnNames = {"ID/MAC", "Nama Pengguna", "Kuota Sisa", "Status Jaringan", "Jam Akses"};
         Object[][] data = {}; 
-        DefaultTableModel model = new DefaultTableModel(data, columnNames);
-        JTable table = new JTable(model);
+        tableModel = new DefaultTableModel(data, columnNames);
+        dataTable = new JTable(tableModel);
         
-        table.setShowGrid(false);
-        table.setIntercellSpacing(new Dimension(0, 5)); 
+        dataTable.setShowGrid(false);
+        dataTable.setIntercellSpacing(new Dimension(0, 5)); 
         
-        JScrollPane scrollPane = new JScrollPane(table);
+        JScrollPane scrollPane = new JScrollPane(dataTable);
         scrollPane.setBounds(20, 200, 580, 100);
         scrollPane.getViewport().setBackground(Color.WHITE);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -247,12 +252,27 @@ btnTambah.addActionListener(e -> {
         );
     } 
     else {
+        // Tambahkan data ke database
+        DBWifi.addUser(mac, nama, jam);
+        
+        // Refresh tabel
+        refreshTable();
+        
         JOptionPane.showMessageDialog(
             this, 
             "Data '" + nama + "' berhasil ditambahkan!", 
             "Sukses", 
             JOptionPane.INFORMATION_MESSAGE
         );
+        
+        // Clear input fields
+        txtMac.setText("Contoh: 1A:2B:3C:4D");
+        txtMac.setForeground(Color.LIGHT_GRAY);
+        txtNama.setText("Masukkan nama...");
+        txtNama.setForeground(Color.LIGHT_GRAY);
+        txtJam.setText("Contoh: 14:00");
+        txtJam.setForeground(Color.LIGHT_GRAY);
+        
         cardLayout.show(mainContainer, HALAMAN_UTAMA);
     }
 });
@@ -261,6 +281,17 @@ btnTambah.addActionListener(e -> {
 
     return panel;
 }
+
+    // Metode untuk refresh tabel dengan data terbaru dari database
+    private void refreshTable() {
+        // Hapus semua baris di tabel
+        tableModel.setRowCount(0);
+        
+        // Tambahkan data dari database ke tabel
+        for (ArrayList<String> row : DBWifi.databaseWifi) {
+            tableModel.addRow(row.toArray());
+        }
+    }
 
     public static void main(String[] args) {
         try {

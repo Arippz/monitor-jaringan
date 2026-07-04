@@ -132,30 +132,6 @@ public class GUI extends JFrame {
         btnAnalisis.setBackground(Color.WHITE);
         btnAnalisis.addActionListener(e -> cardLayout.show(mainContainer, HALAMAN_ANALISIS));
         panel.add(btnAnalisis);
-
-        JTextField txtBuatCari = new JTextField("Cari nama pengguna...");
-        txtBuatCari.setForeground(Color.GRAY);
-        txtBuatCari.setBounds(20, 135, 150, 25);
-
-        txtBuatCari.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-        public void focusGained(java.awt.event.FocusEvent e) {
-        if (txtBuatCari.getText().equals("Cari nama pengguna...")) {
-            txtBuatCari.setText("");
-            txtBuatCari.setForeground(Color.BLACK); 
-        }
-    }
-
-    @Override
-    public void focusLost(java.awt.event.FocusEvent e) {
-        if (txtBuatCari.getText().isEmpty()) {
-            txtBuatCari.setText("Cari nama pengguna...");
-            txtBuatCari.setForeground(Color.GRAY);
-            }
-        }
-    });
-    panel.add(txtBuatCari);
-
         return panel; 
     }
 
@@ -167,7 +143,7 @@ public class GUI extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
 
-        // Inner chart panel that draws a simple line chart from DBWifi data
+        
         class ChartPanel extends JPanel {
             @Override
             protected void paintComponent(Graphics g) {
@@ -189,7 +165,7 @@ public class GUI extends JFrame {
                 int marginTop = 20;
                 int marginBottom = 60;
 
-                // Extract numeric quotas
+                
                 int n = data.size();
                 int[] values = new int[n];
                 int maxVal = 1;
@@ -207,12 +183,12 @@ public class GUI extends JFrame {
                 int chartW = w - marginLeft - marginRight;
                 int chartH = h - marginTop - marginBottom;
 
-                // Draw axes
+                
                 g2.setColor(Color.BLACK);
                 g2.drawLine(marginLeft, marginTop, marginLeft, marginTop + chartH); // Y axis
                 g2.drawLine(marginLeft, marginTop + chartH, marginLeft + chartW, marginTop + chartH); // X axis
 
-                // Y axis ticks and labels
+                
                 int ticks = 5;
                 g2.setFont(new Font("Arial", Font.PLAIN, 10));
                 for (int t = 0; t <= ticks; t++) {
@@ -222,7 +198,7 @@ public class GUI extends JFrame {
                     g2.drawString(value + " MB", 5, y + 4);
                 }
 
-                // X axis points
+                
                 if (n > 1) {
                     int gap = chartW / (n - 1);
                     int[] xs = new int[n];
@@ -233,7 +209,7 @@ public class GUI extends JFrame {
                         ys[i] = marginTop + (int) ((1 - normalized) * chartH);
                     }
 
-                    // Draw area line chart
+                    
                     g2.setColor(new Color(30, 144, 255));
                     g2.setStroke(new BasicStroke(2f));
 
@@ -257,7 +233,7 @@ public class GUI extends JFrame {
                     g2.setColor(new Color(30, 144, 255));
                     g2.draw(linePath);
 
-                    // Draw points and labels
+                    
                     g2.setColor(new Color(255, 69, 0));
                     for (int i = 0; i < n; i++) {
                         g2.fillOval(xs[i] - 4, ys[i] - 4, 8, 8);
@@ -268,7 +244,7 @@ public class GUI extends JFrame {
                         g2.setColor(new Color(255, 69, 0));
                     }
                 } else if (n == 1) {
-                    // Single point
+                    
                     int x = marginLeft + chartW / 2;
                     double normalized = values[0] / (double) maxVal;
                     int y = marginTop + (int) ((1 - normalized) * chartH);
@@ -288,9 +264,9 @@ public class GUI extends JFrame {
             btnRefresh.setEnabled(false);
             Main backend = new Main();
             new Thread(() -> {
-                // trigger backend update which modifies DBWifi and uses the GUI callbacks
+                
                 backend.Perubahan(GUI.this);
-                // repaint chart on EDT and re-enable button
+               
                 SwingUtilities.invokeLater(() -> {
                     chart.repaint();
                     btnRefresh.setEnabled(true);
@@ -349,7 +325,7 @@ public class GUI extends JFrame {
                 int[] countByHour = new int[24];
                 int maxHour = 0;
                 
-                // Gunakan histori jam akses yang telah terekam
+                
                 for (int hour = 0; hour < 24; hour++) {
                     countByHour[hour] = DBWifi.jamSibukHistory[hour];
                     if (countByHour[hour] > 0 && hour > maxHour) {
@@ -357,7 +333,7 @@ public class GUI extends JFrame {
                     }
                 }
                 
-                // Tambahkan user saat ini per jam dari database
+                
                 for (ArrayList<String> row : data) {
                     if (row.size() > 4) {
                         try {
@@ -369,7 +345,7 @@ public class GUI extends JFrame {
                                 }
                             }
                         } catch (Exception ex) {
-                            // skip invalid time values
+                            
                         }
                     }
                 }
